@@ -1,0 +1,130 @@
+
+一、创建线程
+
+//方法一、继承Thread类，并重写run方法
+class test extends Thread
+{
+      public void run() {
+          System.out.println("你好啊");
+      }
+  }
+
+main()
+        MyTask_inherits myThread=new MyTask_inherits();
+        myThread.setName("Thread 1");
+        myThread.start();
+
+//方法二、实现Runnable接口，重写run方法
+public class MyTask implements Runnable
+{
+    public void run()
+    {
+        while (true)
+        {
+            System.out.println(Thread.currentThread().getName()+" is doing MyTask");
+        }
+    }
+}
+
+main()
+        Thread thread =new Thread (new MyTask_runnable(),"My Thread");
+        thread.start();
+
+//补充：实现Runnable接口比继承Thread类所具有的优势：
+1）：适合多个相同的程序代码的线程去处理同一个资源
+2）：可以避免java中的单继承的限制
+3）：增加程序的健壮性，代码可以被多个线程共享，代码和数据独立
+4）：线程池只能放入实现Runable或callable类线程，不能直接放入继承Thread的类
+
+二、线程调度
+    1、调整线程优先级：Java线程有优先级，优先级高的线程会获得较多的运行机会。Java线程的优先级用整数表示，取值范围是1~10
+    2、关于优先级的三个静态变量
+            static int MAX_PRIORITY
+                线程可以具有的最高优先级，取值为10。
+            static int MIN_PRIORITY
+                线程可以具有的最低优先级，取值为1。
+            static int NORM_PRIORITY
+                分配给线程的默认优先级，取值为5。
+            Thread类的setPriority()和getPriority()方法分别用来设置和获取线程的优先级。
+
+    3、join()方法，等待其他线程终止
+    在当前线程中调用另一个线程的join()方法，则当前线程转入阻塞状态，直到另一个进程运行结束，当前线程再由阻塞转为就绪状态
+    e.g
+    Thread t=new Thread(new JoinDemo());
+    t.start();
+    try{t.join();}
+    catch(){}
+
+    4、线程睡眠sleep()
+    Thread.sleep(long millis)方法，使调用sleep()方法的线程转到阻塞状态。
+    millis参数设定睡眠的时间，以毫秒为单位。当睡眠结束后，就转为就绪（Runnable）状态。
+
+    5、interupt()
+    线程中断，中断当前调用的线程，建议在调用线程类中if(!interupted())或while(!interupted())
+
+    6、yield()
+    线程让步：Thread.yield() 方法，暂停当前正在执行的线程对象，把执行机会让给相同或者更高优先级的线程。
+
+三、线程同步
+    synchronized 表示线程同步，可以设置在方法头，也可以在方法中设置代码块
+        1）public synchronized void withdraw(double amount)
+        2）synchronized(x) （这里的x为this时，那么互斥资源位当前对象，与上面写在函数头的方法就一模一样了；
+                            x也可以为数组等数据形式，表示一次只能有一个线程访问该资源
+            {
+            /*code*/
+            }
+        3）对同一个对象，若其有多个synchronized方法，只要一个线程访问了其中的一个synchronized方法，
+           其它线程不能同时访问这个对象中任何一个synchronized方法
+
+        4）wait与sleep的区别
+        wait可以增加线程的并行性，将
+
+四、线程池 Thread Pool
+    1、线程池的真正实现类是 ThreadPoolExecutor
+    (1)初始化线程池的参数
+    ThreadPoolExecutor threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, //主线程数量
+                                                 MAXIMUM_POOL_SIZE, //最大线程数量
+                                                 KEEP_ALIVE, //线程允许闲置时长
+                                                 TimeUnit.SECONDS, //时长单位
+                                                 sPoolWorkQueue,
+                                                 sThreadFactory);
+
+    (2)向线程提交任务
+    1)不像之前所说的创建一个实现Runnable接口的类 而是匿名的方式创建（可以节约资源
+    threadPool.execute(new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            ... // 线程执行的任务
+        }
+    });
+
+    2)除了上面的方法实现Runnable类的重写，还可以先创建Runnable对象
+    Runnable task =new Runnable(){
+      public void run() {
+         System.out.println("执行任务啦");
+      }
+    };
+
+
+    (3)功能线程池
+    嫌上面使用线程池的方法太麻烦？其实Executors已经为我们封装好了 4 种常见的功能线程池：
+        //其实只是被封装好了罢了哈哈哈
+        1)定长线程池（FixedThreadPool）            应用场景：控制线程最大并发数
+        2)定时线程池（ScheduledThreadPool）        应用场景：执行定时或周期性的任务
+        3)可缓存线程池（CachedThreadPool）         应用场景：执行大量、耗时少的任务
+        4)单线程化线程池（SingleThreadExecutor）   不适合并发但可能引起 IO 阻塞性及影响 UI 线程响应的操作，如数据库操作、文件操作等
+
+    e.g
+    // 1. 创建定长线程池对象 & 设置线程池线程数量固定为3
+    ExecutorService fixedThreadPool = Executors.newFixedThreadPool(3);
+
+    // 2. 创建 定时线程池对象 & 设置线程池线程数量固定为5
+    ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
+
+
+    (4)总结
+    Executors 的 4 个功能线程池虽然方便，但现在已经不建议使用了，而是建议直接通过使用 ThreadPoolExecutor 的方式，
+    这样的处理方式让写的同学更加明确线程池的运行规则，规避资源耗尽的风险。
+

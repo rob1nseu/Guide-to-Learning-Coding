@@ -1,0 +1,38 @@
+1、Java中的Array数组
+    （1）静态创建
+    int[] array1 = {1,2,3};
+    （2）动态创建
+    int[] a=new int[10];
+    int[] b=new int[]{1,5};
+
+    2）内置方法
+    1--Arrays.sort(arrayName) 进行数组的快速排序
+    2--Arrays.binarySearch(arrayName,"搜索字符")
+
+    //Array里重写了 equals() 与 hashCode() 方法 ，因此此时的 hash() 与 equals() 只看内容是否相同
+    3--Arrays.equals(arrayName1，arrayName2) 判断两个一维数组是否相等，只看内容
+    4--Arrays.hashCode(arrayName1) 求解一个数组对象的哈希值
+    5--Arrays.deepEquals(a,b)  其中a与b均为二维数组 仅比较内容
+
+    attention! 大小写不敏感的排序与搜索 —— 核心函数为tolowerCase()
+    attention! Arrays.equals(a,b) != a.equals(b)  //前者被重载过，只看其内容；后者没有被重载，比较的是对象的哈希值
+
+2、Java中的Collection类
+    （1）概述
+    Collection 接口有 3 种子类型集合: List、Set 和 Queue，操作基本相同
+    常用的有 ArrayList、LinkedList、HashSet、LinkedHashSet、ArrayBlockingQueue等
+
+    （2）通用方法  Collection中的方法既可以操作Set集合，也可以操作Queue和List集合
+        1）boolean add(E e)  向集合添加元素e，若指定集合元素改变了则返回true
+        2）void clear()  清空所有集合元素
+        3）boolean contains(Object o) 判断指定集合是否包含对象o
+        4）boolean remove(Object o) 删除集合中的元素对象o,若集合有多个o元素，则只会删除第一个元素
+
+
+    （3）ArrayList 相当于动态数组/线性表
+        1）Size() 返回当前元素个数
+        2）get(int index) / set(int index) 获取与设置
+        3）boolean add(E e)  向集合添加元素e，若指定集合元素改变了则返回true
+           boolean add(int index,E e) 向对应位置添加元素e
+
+        4）remove(x) x为键值或者下标

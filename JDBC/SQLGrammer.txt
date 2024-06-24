@@ -1,0 +1,20 @@
+1、SQL语句
+    （1）外键：表与表之间存在关联
+    （2）命名法：对变量中间用下划线分割，表名首字母大写
+    （3）一些语法差缺补漏
+        DINSTINCT 表示去重
+        IN 表示在集合中
+        BETWEEN...AND... 可以日期查询
+        ORDER BY 变量名称 ASC/DESC
+        VALUES () :表示新增数据属性
+        UPDATE 表名 SET 字段名=希望修改的值
+        DELETE FROM 表名 WHERE ...
+
+    （4）上课测试
+    SELECT store_name FROM Store_Information;
+    SELECT COUNT(*) FROM Store_Information WHERE Sales>500;
+    SELECT * FROM Store_Information WHERE Sales>100 AND Sales<500;
+    SELECT Sales WHERE store_name LIKE "%an%" ORDER BY Sales DESC;
+    INSERT INTO Store_Information VALUES ("XIANFENG",1500,"ANY DATE");
+    UPDATE Store_Information SET Sales=1000 WHERE store_name="Los Angeles";
+    DELETE FROM Store_Information WHERE store_name="Los Angeles";
