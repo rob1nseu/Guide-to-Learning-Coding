@@ -1,4 +1,4 @@
-/## **一 Java概述**
+## **一 Java概述**
 
 * javac命令编译为字节码.class文件，java命令执行.class字节码，解释型执行
 
@@ -119,9 +119,6 @@ byte short int float double boolean char
 Object 类是所有类的父类，位于自动导入的 java.lang 包中，若未明确继承父类，将隐式继承 Object类.
 
       * 包含clone(),hashcode(),equals() ,wait()等方法.
-
-
-
 
 
 ---
