@@ -1,0 +1,51 @@
+1、Java中的File类
+想要在Java程序中表示一个真实存在的文件或目录，那么必须有一个File对象
+（1）File对象的构造器
+     public File(String pathname) 以pathname对应的文件创建一个File类对象
+（2）File类常用的一些方法
+      1）获取型
+      public File[] listFiles() 获取指定目录下的所有文件或者文件目录的File对象数组
+      public String[] list()  获取指定目录下的所有文件或者文件目录的字符串数组
+
+      2）判断型
+      public boolean isDirectory()  判断是否是文件目录
+      public boolean isFile()  判断是否是文件
+      public boolean exist() 判断该文件是否存在
+
+
+      3）创建型
+      public boolean createNewFile()  创建文件
+      public boolean mkdir()  创建文件目录
+
+2、输入输出流
+    （1）概述
+    1--在java.io包中有四个基本类：InputStream、OutputStream及Reader、Writer类，分别处理字节流和字符流。
+其中字节流处理的是二进制字节编码；而字符流处理的是单纯的字符。
+    2--Java中字符是采用Unicode标准，Unicode 编码中，一个英文字母或一个中文汉字为两个字节,
+而在UTF-8编码中，一个中文字符是3个字节,若使用字节流，那么会出现乱码。
+    3--节点流与处理流：
+        节点流：直接操作数据读写的流类
+        处理流：对一个已存在的流的链接和封装，从而提升其性能
+    4--缓冲流：在内存中设置一个缓存区，缓冲区先存储足够的待操作数据后，再与内存或磁盘进行交互，从而减少程序与磁盘的交互次数，提升效率
+
+    （2）字节流
+        1）InputStream与OutputStream是两个抽象类，是字节流的基类，作为模板而存在，所有具体的字节流实现类都是分别继承了这两个类
+        2）FileInputStream 文件输入流
+        常用方法：
+            1--read() 从数据流中读取一个数据字节
+        3）FileOutputStream 文件输出流
+        常用方法：
+            1--write(byte[] b) 将 b.length 个字节从指定 byte 数组写入此文件输出流中
+
+    （3）字符流
+        1）Reader和Writer为字符流的两个抽象基类，最常使用的是FileReader与FileWriter
+        2）Reader与Writer的主要方法:
+            1--read() 读取单个字符
+            2--reader.readLine()
+            3--write(char[] cbuf) 写入字符数组
+               write(String str) 写入字符串
+        3）FileWriter 是一个用于将字符写入文件的类。它的构造函数接受一个文件名FILE_NAME作为参数，
+            并创建一个文件输出流。如果文件不存在，它会创建一个新文件。如果文件存在，它会覆盖原有文件的内容。
+        4）BufferedWriter 是一个字符缓冲输出流，可以为其他字符输出流添加缓冲功能。它的构造函数接受一个 Writer 对象（这里是 FileWriter）。
+          BufferedWriter 使用内部缓冲区来暂存字符，当缓冲区满时或手动调用 flush() 方法时，再将缓冲区中的字符写入文件。这种缓冲机制减少了与文件系统的交互次数，从而提高了写入性能。
+TIPS:FileWriter 包装在 BufferedWriter 中，是为了提高写入操作的效率。直接使用 FileWriter 会在每次写入时直接操作文件，这在大量小数据写入时效率较低。
