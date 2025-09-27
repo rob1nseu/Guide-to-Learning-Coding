@@ -44,6 +44,8 @@
 
 分为内置数据类型与引用数据类型.
 
+<img src="Note_pic\image-20250926111019988.png" alt="image-20250926111019988" style="zoom:33%;" />
+
   * **内置数据类型**：
 
 byte short int float double boolean char
@@ -147,14 +149,29 @@ Object 类是所有类的父类，位于自动导入的 java.lang 包中，若�
 
   * 类中构造函数的特点有：**与类名相同且没有返回类型**，**支持子类super调用(但不能被继承)**，**自动调用(使用 new 创建对象时)，使用this表示实例对象自身**
 
+  * *建议手动写上空参与有参的全部的构造方法*
+
 <img src="Note_pic/09b2a666bd8d6a1767ae39ef5cbbe7a.jpg" style="zoom:50%;" />
 
 ---
 
-## **七 Java面向对象精讲**
+## **七 Java面向对象**
+
+  * **Javabean框架类** -- 描述一类事物的类，在Javabean类中，是不写main方法的！
+
+<img src="Note_pic\image-20250924221433053.png" style="zoom: 67%;" >
+
+  * **对象内存图**
+
+​	展示对象如何在内存各分区（堆、栈、方法区）中分布。
+
+​	**.class即.java文件经编译过后的字节码文件，使用某类时，需加载到方法区。**
+
+<img src="Note_pic\image-20250926104801013.png" alt="image-20250926104801013" style="zoom: 50%;" />
+
+<img src="Note_pic\image-20250926104621960.png" alt="image-20250926104621960" style="zoom:33%;" />
 
   * **Java继承**
-
     * **extends关键字**
 
 <img src="Note_pic/ae02f3838658a93639cdbf8e70cf910.jpg" style="zoom: 33%;" />
@@ -171,16 +188,15 @@ Object 类是所有类的父类，位于自动导入的 java.lang 包中，若�
 
 * **implements关键字**
            1. **Java在设计父类时，不允许使用多继承，但implements 关键字可以变相的使java具有多继承的特性**(**接口**)
-           2. 如下图，即为一个多继承接口的实例
+               2. 如下图，即为一个多继承接口的实例
 
 <img src="Note_pic/b5ef6e2ea74850775e539c21d8760f7.jpg" style="zoom:33%;" />
 
 * **super 与 this 关键字**
+   1. super 关键字：可以通过 super 关键字来实现对父类成员的访问，用来引用当前对象的父类
+   2. **this 关键字：区分局部变量与成员变量，代表方法调用者的地址值。（原理图见对象内存图）**
 
-           1. **super 关键字：可以通过 super 关键字来实现对父类成员的访问，用来引用当前对象的父类**
-           2. this 关键字：指向自己的引用，引用当前对象，即它**所在的方法或构造函数所属的对象实例**
-    
-    
+​    
 
   * **Java多态**
 
