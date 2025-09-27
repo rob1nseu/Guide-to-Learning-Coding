@@ -94,7 +94,7 @@
 <a href="https://www.runoob.com">这是一个链接使用了 href 属性</a>
 ```
 
-![image-20250912214320164](C:\Users\86157\Desktop\Guide-to-Learning-Coding\Guide-to-Learning-Coding\note-P\note-html-basic\note-html-pic\image-20250912214320164.png)
+<img src="note-html-pic\image-20250912214320164.png" alt="image-20250927121350450"  />
 
 ### **1.4 HTML表单标签**
 
@@ -198,7 +198,9 @@
 - **实际开发中，经常使用没有语义的 `div` 与 `span` 布局标签：**
 
   - **`<div></div>` 常用于CSS盒子布局模型中，在`<style></style>`内，利用`<div>`标签/id的方式引入CSS样式**
-  - <img src="note-html-pic\image-20250927120407935.png" alt="image-20250927120407935" style="zoom: 50%;" />
-  - `<span></span>` 即HTML中用于行内组合的标签
+  
+    <img src="note-html-pic\image-20250927120407935.png" alt="image-20250927120407935" style="zoom: 50%;" />
 
-  ![image-20250927115932026](note-html-pic\image-20250927115932026.png)
+  - `<span></span>` 即HTML中用于行内组合的标签
+  
+  <img src="note-html-pic\image-20250927115932026.png" alt="image-20250927120407935" style="zoom:80%;" />
