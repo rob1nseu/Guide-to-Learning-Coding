@@ -359,19 +359,294 @@ import 关键字用于导入其他类或包中定义的类型，以便在当前�
 
 ---
 
-## **十一 Java序列化与网络编程**
+## **十一 Java数据流与网络编程**
 
-  * **序列化**
+#### 11.1 **数据流**
 
-    * 序列化是一种**将对象转换为字节流的过程，用于将对象保存磁盘或网络传输**.
+> 见《菜鸟教程》https://www.runoob.com/java/java-files-io.html 
 
-    * 通过 **java.io.Serializable** 接口(前文“标记接口”)实现，可序列化的类需要implement java.io.Serializable 接口
+主要分为**字节流**与**字符流**两种
 
-    * ObjectOutputStream类可用于序列化可序列化对象.(暂时感觉用不太上，这里先省略)
+| 对比维度      | 字节流（Byte Stream）                                | 字符流（Character Stream）                          |
+| ------------- | ---------------------------------------------------- | :-------------------------------------------------- |
+| **处理单位 ** | 1 个字节（8 bit）                                    | 1 个字符（16 bit Unicode，含中文、特殊符号）        |
+| **核心父类**  | 输入：`InputStream`；输出：`OutputStream`            | 输入：`Reader`；输出：`Writer`                      |
+| **适用场景**  | 处理二进制文件（图片、视频、音频、压缩包）、通用 I/O | 处理文本文件（.txt、.java）、字符串传输（避免乱码） |
+| **编码依赖**  | 不依赖字符编码（直接操作二进制）                     | 依赖字符编码（如 UTF-8、GBK），需匹配数据源编码     |
 
 
 
-  * **Java网络编程(待使用时再补充)**
+#### 11.2 **CS架构网络编程**
+
+> 网络编程包为 `java.net.*`
+
+##### **11.2.1 网络通信三要素**
+
+###### 1. IP地址
+
+- 特殊IP地址：**127.0.0.1（localhost）代表本机IP**
+- **InetAddress，Java中封装IP对象类于`java.net.InetAddress`**
+  - <img src="Note_pic\image-20251004125623442.png" alt="image-20251004125623442" style="zoom: 50%;" />
+
+###### 2. 端口
+
+- 端口号为一个**16位的二进制编码**，范围为0~65535
+- 周知（0~1023），注册（1024~49151），动态（49152~65535）
+
+###### 3. 协议
+
+- **UDP协议**
+  - 无连接（不事先建立连接）
+  - 不可靠（发送-接收方**不存在确认机制**）
+- **TCP协议**
+  - 面向连接：发送-接收方需建立连接
+  - **可靠通信：a.三次握手/四次挥手；b.传输数据ACK；c.超时重发**
+
+
+
+##### 11.2.2 Socket基础
+
+- **Socket** 就是通信双方的“**逻辑管道**”
+
+- **四元组`  <本地 IP，本地端口，远端 IP，远端端口> `唯一地确定一个`Socket`**
+
+  - 上述约定仅作用于面向连接的TCP协议，后续数据传输都基于这个固定连接
+
+  - 在无连接的UDP中，DatagramSocket仅需绑定本地IP与本地端口，而将远端IP与远端端口动态绑定到DatagramPacket中***（DatagramSocket作为数据收发的固定窗口，DatagramPacket实现“一对多”的灵活通信）***
+
+- 把“复杂的网络”抽象成了“**像文件一样读写**”，复杂机制由OS内核包办
+
+- **“发送-接收”的物理流向**
+
+  ​	数据包到达网卡 → 协议栈根据四元组**哈希查找**对应 `Socket` → 把 `payload` 拷进它的接收缓冲区 → 唤醒阻塞在 `read()` 上的进程。
+
+
+
+##### **11.2.3 UDP 网络编程**
+
+<img src="Note_pic\image-20251004163621358.png" alt="image-20251004163621358" style="zoom: 50%;" />
+
+- **`DatagramSocket`类**
+  - 创建`UDP Socket`对象（扔韭菜的人），存在**指定端口号/随机端口号两种形式**
+  - `send()/receive()`进行发送-接收方的数据包传输
+- **`DatagramPacket`类**
+  - 创建数据包对象（韭菜盘子），发送方创建数据包时，需指定`IP address`与`port`
+  - `DatagramPacket`对象中存在`getLength()`(获取所接收报文长度)、`getAddress()`（发送方IP地址）等`get/set`函数
+
+<img src="Note_pic\3c982c6f440c35cfe13b466dad75bd1a.png" alt="3c982c6f440c35cfe13b466dad75bd1a" style="zoom: 50%;" />
+
+###### * UDP服务端
+
+```java
+import java.net.*;
+// UDP通信服务器端
+public class udp_server{
+    public static void main(String[] args) throws Exception{
+        System.out.println("-----开启UDP服务端-----");
+        // 1、创建UDP服务器端socket
+        DatagramSocket ds = new DatagramSocket(10086); // 注册服务端的端口号为10086
+
+        // 2、创建接收数据包的韭菜盘子
+        byte[] buffer = new byte[1024*64]; // 创建64kb的字节数组
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+        // 3、服务端socket接收发送到当前主机当前port的数据包
+        ds.receive(packet);
+        String rcv = new String(packet.getData(),0,packet.getLength()); // packet.getData()也可为buffer
+
+        // 读取当前所接收数据包
+        System.out.println(rcv);
+    }
+}
+```
+
+###### * UDP客户端
+
+```java
+import java.net.*;
+
+// UDP通信客户端
+public class udp_client {
+    public static void main(String[] args) throws Exception {
+        // 1、创建UDP客户端socket
+        DatagramSocket ds = new DatagramSocket(); // 若不指定端口号，自动分配一个可用端口
+
+        // 2、创建发向localhost:10086端口的数据包（每个数据包指向某个端口）
+        String msg = "Hello, Server!";
+        byte[] data = msg.getBytes(); // 将字符串转化为字节数组
+        DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), 10086);
+
+        // 3、发送数据包
+        ds.send(packet);
+
+        System.out.println("UDP客户端发送完毕！");
+    }
+}
+```
+
+
+
+##### 11.2.4 TCP网络编程
+
+###### 1. TCP发送-接收模型
+
+![image-20251004215440975](Note_pic\image-20251004215440975.png)
+
+###### 2. `java.net.Socket`类
+
+- **客户端中，需`Socket(String host, int port)`初始化，向对应IP与端口发起Socket连接请求**
+- **`Socket`对象使用`SocketObject.getOutputStream()`与`SocketObject.getInputStream()`来获取输出流/输入流的数据（字节输入与输出流不方便使用，可以向上封装为`DataInputStream`等）**
+  - InputStream 的语义是“有就返回，没有就阻塞”，不保证一次把你要的 len 读满；
+  - OutputStream 的语义是“拷贝到内核发送缓冲区就返回”，不保证对方已收到；
+
+![image-20251004215724813](Note_pic\image-20251004215724813.png)
+
+
+
+###### 3. `java.net.ServerSocket`类
+
+- **服务端中，需 `ServerSocket(int port)` 注册当前服务端程序端口**
+- **服务端中，利用 `ServerSocketObject.accept()` 阻塞服务端程序，并返回服务端对应的Socket对象**
+
+![image-20251004215908606](Note_pic\image-20251004215908606.png)
+
+
+
+###### 4. 与多个客户端同时通信的服务端
+
+<img src="Note_pic\image-20251004223701651.png" alt="image-20251004223701651" style="zoom: 33%;" />
+
+
+
+###### * TCP 客户端
+
+```java
+import java.net.Socket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Objects;
+import java.util.Scanner;
+
+public class tcp_client {
+    public static void main(String[] args) throws Exception {
+        // 1、创建TCP客户端socket，申请与Localhost:10086端口的连接
+        Socket socket = new Socket(InetAddress.getLocalHost(),10086);
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("请输入要发送的消息：");
+        String msg = sc.nextLine();
+
+        while (!Objects.equals(msg, "exit")) {
+            // 2、获取socket的输出流，向服务器端发送数据
+            socket.getOutputStream().write(msg.getBytes());
+            // 重新获取用户数据输入
+            System.out.println("请输入要发送的消息：");
+            msg = sc.nextLine();
+        }
+        // 3、关闭客户端socket
+        socket.close();
+    }
+}
+
+```
+
+###### * TCP 服务端
+
+```java
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class tcp_server {
+    public static void main(String[] args) throws IOException {
+        System.out.println("---服务器端启动---");
+        // 1、注册服务器端socket，监听10086端口
+        ServerSocket serverSocket = new ServerSocket(10086);
+
+        // 循环接收客户端连接
+        while (true) {
+            // 2、等待多客户端连接，获取下一用户socket连接
+            Socket serversocket = serverSocket.accept();
+            System.out.println(serversocket.getRemoteSocketAddress() + " 连接成功");
+            // 3、创建线程对象，启动线程
+            new tcpServerReaderThread(serversocket).start();
+        }
+    }
+}
+
+```
+
+
+
+###### * TCP 服务端 多线程服务类
+
+```java
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+
+// 服务端多线程的线程类
+public class tcpServerReaderThread extends Thread {
+    private Socket socket;
+
+    // 构造函数（利用主线程传递的socket对象）
+    public tcpServerReaderThread(Socket socket) {
+        this.socket = socket;
+    }
+
+    // 重写run方法（线程执行的代码）
+    @Override
+    public void run() {
+        try {
+            InputStream inputStream = socket.getInputStream();
+            // 循环读取客户端发送的数据
+            while (true) {
+                byte[] buffer = new byte[1024];
+                int len = inputStream.read(buffer);
+                if (len == -1) {
+                    System.out.println(socket.getRemoteSocketAddress() + " 断开连接");
+                    socket.close();
+                    inputStream.close();
+                    break;
+                }
+                System.out.println(socket.getRemoteSocketAddress() + ": " + new String(buffer, 0, len));
+            }
+        } catch (Exception e) {
+            System.out.println("【服务端多线程出错】");
+        }
+    }
+}
+```
+
+
+
+###### 5. 群聊架构（Complex！）
+
+- 客户端：主线程负责发送信息到服务器；子线程负责监听socket管道，收到服务端转发的群聊
+- 服务端：主线程负责与多客户端建立socket连接并为每个客户端安排子线程；子线程负责接收各客户端信息/分发群聊信息到客户端。
+
+
+
+
+
+#### 11.3 **BS架构网络编程**
+
+> BS架构即Browser-Server架构，不同于CS，仅需开发Server端即可
+
+<img src="Note_pic\image-20251008162735810.png" alt="image-20251008162735810" style="zoom:50%;" />
+
+**注意：服务器必须响应HTTP协议格式**
+
+
+
+##### 11.3.1 线程池优化
+
+<img src="Note_pic\image-20251008163342886.png" alt="image-20251008163439642" style="zoom: 50%;" />
+
+
+
+
 
 ---
 
@@ -379,24 +654,49 @@ import 关键字用于导入其他类或包中定义的类型，以便在当前�
 
 <img src="Note_pic/ae2fc4846a9e93edaca754b6095ba44.jpg" style="zoom: 50%;" />
 
-​	事实上，Java中存在**（1）实现runnable接口**、**（2）继承Thread类**主要的两种方式来创建线程，**核心是类中public void run()方法与public void start()**.
+存在
 
-<img src="Note_pic/18cb88d342fb5c912c26daa5091a581.jpg" style="zoom: 33%;" />
+1. **实现runnable接口**
 
-​	**对象方法：**
+2. **继承Thread类**（*最简单*）
+
+3. **实现Callable接口**
+
+三种方式来创建线程，在类中，**需要@Override重写run方法（线程执行方法）**
+
+
+
+#### **12.1 run&start方法**
 
 <img src="Note_pic/2c2efd8e39d5eeb5bd3039af98e102d.jpg" style="zoom: 33%;" />
 
-​	**Thread类静态方法：**
+```java
+// 定义线程类
+class MyThread extends Thread {
+    @Override
+    public void run() {
+        // 线程执行的代码
+        System.out.println("Thread is running");
+    }
+}
 
-​		Thread.yield() - 暂停当前线程对象，执行其他进程
+// 调用线程时，利用start()方法启动线程
+public class Main {
+    public static void main(String[] args) {
+        MyThread thread = new MyThread();
+        thread.start(); // 启动线程
+    }
+}
+```
 
-​		Thread.sleep(long millisec) - 线程对象睡眠x毫秒
 
 
+#### **12.2 线程调度**
 
-​	**多种线程创建方法比较：**
+```java
+Thread.yield()  // 暂停当前线程对象（让出CPU），执行其他进程
+Thread.sleep(long millisec) // 线程对象睡眠指定毫秒时间
+Thread.join() // 等待指定线程执行完毕
+```
 
-  * 采用实现 Runnable、Callable 接口的方式创建多线程时，线程类只是实现了 Runnable 接口或 Callable 接口，还可以继承其他类
 
-  * 继承 Thread 类的方式创建多线程时，编写简单，如果需要访问当前线程，则无需使用 Thread.currentThread() 方法，直接使用 this 即可获得当前线程

@@ -106,7 +106,7 @@
     <label for="name">用户名:</label>
     <input type="text" id="name" name="name" required>
 
-    <br>
+    <br> <!-- 分隔一行 -->
 
     <!-- input输入框 type为password(输入为隐藏状态) -->
     <label for="password">密码:</label>
@@ -134,7 +134,7 @@
   - **`action` 属性定义了表单数据提交的目标 URL（默认为当前页面URL，一般为服务端URL地址）**
 
   - **`method` 属性定义了提交数据的 HTTP 方法（默认为GET）**
-    - *GET：在URL后面拼接表单数据，存在URL长度限制，如下图*
+    - *GET：在请求报文请求行中传递，URL后面拼接表单数据，存在URL长度限制，如下图*
     - *POST：在http消息体中传递，大小无限制（可F12看到报文）*
 
   <img src="note-html-pic\image-20250927121350450.png" alt="image-20250927121350450" style="zoom: 67%;" />
