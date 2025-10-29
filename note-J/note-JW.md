@@ -82,7 +82,16 @@
 
 <img src="Note_pic\image-20251003130927992.png" alt="image-20251003130927992" style="zoom:33%;" />
 
-​	SpringbootWeb的pom.xml中存在起步依赖***spring-boot-starter-web***，其中内置了基础Web开发所需依赖。（Maven依赖传递）
+​	SpringbootWeb的pom.xml中存在起步依赖***spring-boot-starter-web***，内置了基础Web开发所需依赖（Maven依赖传递）
+
+**Springboot中的快捷组件：**
+
+| `@GetMapping("/path")`    | `@RequestMapping(value="/path", method=GET)`    |
+| ------------------------- | ----------------------------------------------- |
+| `@PostMapping("/path")`   | `@RequestMapping(value="/path", method=POST)`   |
+| `@PutMapping("/path")`    | `@RequestMapping(value="/path", method=PUT)`    |
+| `@DeleteMapping("/path")` | `@RequestMapping(value="/path", method=DELETE)` |
+| `@PatchMapping("/path")`  | `@RequestMapping(value="/path", method=PATCH)`  |
 
 ### **3. http协议**
 
@@ -141,7 +150,7 @@
 
 ![image-20251009141802787](Note_pic\image-20251009141722327.png)
 
-​	BS架构中，Tomcat服务器程序中存在一个继承自Servlet的DispatcherServlet类（核心/前端控制器），**将Browser传递的数据封装到`HttpServletRequest`类对象中，分发到`xxxController`，将Server传递的数据封装到`HttpServletResponse`类对象中**。
+​	BS架构中，Tomcat服务器程序中存在一个继承自Servlet的`DispatcherServlet`类（核心/前端控制器），**将Browser传递到Server的数据封装到`HttpServletRequest`类对象中，分发到`xxxController`，将Server传递到Browser的数据封装到`HttpServletResponse`类对象中**。
 
 #### 5.1 接口测试工具
 
@@ -155,7 +164,7 @@
 
 ##### 5.2.1 Web前端请求数据的后端处理
 
-​	此部分利用了Apifox的接口测试系统，学习并验证了下面各种参数的前后端参数传递。
+​	此部分利用了`Apifox/Postman`的接口测试系统，学习并验证了下面各种参数的前后端参数传递。
 
 <img src="Note_pic\image-20251010110346139.png" alt="image-20251010110346139" style="zoom: 50%;" />
 
@@ -173,13 +182,13 @@
 
   - **springboot自动给执行类型转换**（http中传递的为String类型，而可以将age转换为Integer类型）
 
-- 若不使用此类方式，则需要在Controller方法的形参中声明HttpServiceRequest对象，并调用HttpServiceRequest对象的getParameter方法（具体见B-S架构图，不推荐！）
+- 若不使用此类Springboot简化后的方式，则需要在Controller方法的形参中声明`HttpServiceRequest`对象，并调用`HttpServiceRequest`对象的`getParameter`方法（具体见B-S架构图，**不推荐**！）
 
 
 
 ###### 2. 实体参数
 
-​	即将http的请求参数名的各属性封装到一个POJO实体类中，**要求请求参数名与形参对象属性名相同，即可实体类封装！**
+​	即将http的请求参数名的各属性封装到一个POJO`（Plain Old Java Object 普通java对象）`实体类中，**要求请求参数名与形参对象属性名相同，即可实体类封装！**
 
 <img src="Note_pic\image-20251010150004141.png" alt="image-20251010150004141" style="zoom: 50%;" />
 
@@ -189,7 +198,7 @@
 
 ​	**情形**：多个请求参数名相同，可定义数组/集合类型形参。
 
-​	e.g  `**http://localhost:8080/arrayParam/hobby=game&hobby=sleeping`**
+​	e.g  **`http://localhost:8080/arrayParam/hobby=game&hobby=sleeping`**
 
 ​	请求参数封装为数组：**请求参数名与形参数组名相同，可以直接使用数组封装**
 
@@ -205,7 +214,7 @@
 
 ​	**a) JSON*数据键名*与POJO形参*对象的属性名*相同**
 
-​	**b) 需@RequestBody标识**
+​	**b) 需@RequestBody标识（从请求体取数据）**：将http请求体中的JSON格式转化为POJO格式或Map等其他格式
 
 <img src="Note_pic\image-20251010152529942.png" alt="image-20251010152529942" style="zoom: 50%;" />
 
@@ -231,7 +240,7 @@
 
 <img src="Note_pic\image-20251010171407366.png" alt="image-20251010171407366" style="zoom: 33%;" />
 
-​	Result中，一般存在`success(Object)、error(Object)`等静态方法，`return new Result(...)` 返回Result对象，从而方便地创建Result对象！
+​	Result中，一般存在`success(Object)、error(Object)`等**静态方法**，`return new Result(...)` 返回Result对象，从而方便地创建Result对象！
 
 
 
@@ -243,50 +252,68 @@
 - **Service层**：业务逻辑的处理
 - **DAO层**：数据访问操作
 
-​	**数据流向：Browser向服务端发起请求，通过@RequestMapping注解，访问Controller层，再依次到Service层、DAO层，DAO访问到数据后，再由DAO到Service到Controller，响应给Browser！**
+​	**三层架构数据流向：Browser向服务端发起请求，通过@RequestMapping（或GetMapping/PostMapping）注解，访问到Controller层，再依次到Service层、DAO层，DAO访问到数据后，再由DAO到Service到Controller，响应给Browser！**
 
 ![image-20251010190235682](Note_pic\image-20251010190235682.png)
 
 ##### 5.3.1 违规的分层解耦
 
-​	下面这样的耦合方式就**不太合适**：*Controller调用Service的方式是直接new，若service层名称修改，则controller处也需要改动——耦合紧密导致的！*
+​	下面这样的耦合方式就**不太合适**：*Controller类中调用Service的方式是**直接new**，若service层名称修改，则controller处也需要改动——耦合过于紧密！*
 
 <img src="Note_pic\image-20251010192353713.png" alt="image-20251010192353713" style="zoom:67%;" />
 
 
 
-#### 5.3 控制反转IOC & 依赖注入DI
+#### 5.4 控制反转IOC & 依赖注入DI
 
-> **Inversion Of Control**，对象的创建控制权由程序自身转移到IOC容器
+> **Inversion Of Control，对象的创建控制权由程序自身转移到IOC容器**
 >
-> **Dependency Injection**，容器为应用程序提供运行时，所依赖的资源
+> **Dependency Injection，容器为应用程序提供运行时，所依赖的资源由IOC容器注入**
 >
-> **Bean对象**：IOC容器中创建、管理的对象
+> **Bean对象：IOC容器中创建、管理的对象**
 
 ![image-20251010204005438](Note_pic\image-20251010204005438.png)
 
 ```java
 @Component // 将当前类对象交给IOC容器管理，成为IOC容器中的bean 
 public class EmpDaoA implements EmpDao{
-	@Autowired // 运行时，IOC容器将会提供该类型的bean对象，并赋值给该变量 -- 依赖注入
+	@Autowired // 运行时，IOC容器将会提供EmpService类型的bean对象，并赋值给该变量 -- 依赖注入
 	private EmpService empService;
 	...
 }
 ```
 
-#####  5.3.1 IOC
+#####  5.4.1 IOC 控制反转
 
-类中Bean对象的四大注解:
+类中Bean对象的**四大注解**:
 
 <img src="Note_pic\image-20251010204441664.png" alt="image-20251010204441664" style="zoom:50%;" />
 
-- 由于 `@RestController = @Controller + @ResponseBody` ，则在` Controller `层中，用`RestController` 即可1
-- IOC容器中的对象，存在名字，默认为**“ 类名（首字母小写）”**，也可以在注解处修改：`@Service(value="serviceA")`，其中"value="可以省略
-- 上述注解要想生效，需被@ComponentScan扫描（@Component注解包含在了启动类声明注解@SpringBootApplication中），因此，默认扫描范围为启动类所在包及其子包。（当然可以修改配置，但不推荐）
+- 由于 `@RestController = @Controller + @ResponseBody` ，则**在` Controller `层的类中，用`RestController` 即可**
+- IOC容器中的对象名字，默认为**“ [类名（首字母小写）]”**，也可以在注解处修改：`@Service(value="serviceA")`，其中"value="可以省略
+- 上述注解要想生效，需被@ComponentScan扫描（@ComponentScan注解包含在了启动类声明注解@SpringBootApplication中），因此，**默认扫描范围为启动类所在包及其子**包。（当然可以修改配置，但不推荐）
 
 
 
-##### 5.3.2 DI
+##### **@Bean 注解**
+
+- 标记在方法上，**每次调用这个方法，就创建一个对象，交给 Spring 管理**，在其他地方即可注入
+- **@Bean注解与@Component注解**
+
+| `@Bean`                                                      | `@Component`                                |
+| :----------------------------------------------------------- | :------------------------------------------ |
+| 写在 **方法上**                                              | 写在 **类上**                               |
+| 用于配置类中，手动创建对象                                   | 用于类上，自动扫描创建对象                  |
+| 你能完全控制对象怎么创建（new 什么参数）                     | Spring 自动 new，不能传参（除非用构造函数） |
+| 适合创建第三方库的对象（如 `RestTemplate`, `RedisTemplate`） | 适合你自己写的 Service、Controller 等       |
+
+##### @Configuration 注解
+
+​	表明这个类是用来配置Bean对象的
+
+
+
+##### 5.4.2 DI
 
 - **@Autowired -- 从IOC容器中寻找到指定类型的Bean对象**
 
@@ -641,3 +668,26 @@ drop index 索引名 on 表名;
 
 - **主键索引**：最优性能，*数据库默认创建索引*；
 - **唯一索引**：*属性设置为“唯一约束” （即在属性定义处设置为unique 约束时），数据库默认将设置唯一索引*
+
+### **7. Mybatis**
+
+> 一款优秀的持久层框架，用于**简化JDBC的开发**
+>
+> Java程序中的SQL语句，发送到数据库执行并返回
+>
+> **原生版Mybatis（传统SSM）中，存在sqlSessionFactory等复杂机制，此处Mybatis指springboot集成版本Mybatis-Spring-Boot-Starter，启动时会将各个复杂机制自动配置、代理、注入**
+
+#### 7.1 Mybatis入门
+
+##### 7.1.1 **配置&准备**
+
+- 项目创建时，除了springboot相关依赖外，还需添加**MyBatis依赖（MyBatis Framework 、MyBatis Driver）**
+- springboot项目配置文件application.properties中，配置Mybatis的相关驱动、数据库连接URL，MySQL数据库用户名与密码等
+
+![image-20251020214824464](Note_pic\image-20251020214824464.png)
+
+- **创建与数据库表中实体类属性一一对应的实体类**
+  - **@Mapper注解的接口类：**运行时，将自动生成该接口的实现类对象，并将该对象交给IOC容器管理
+  - **接口类中的@Select("[SQL语句]")**，表示调用该方法后将执行指定SQL语句
+
+

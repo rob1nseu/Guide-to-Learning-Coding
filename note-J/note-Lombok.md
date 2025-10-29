@@ -34,8 +34,6 @@ public class User {
 - static修饰的变量不生成getter和setter方法
 - final修饰的变量只生成getter方法 
 
-
-
 ## @ToString
 
 To be continue...
